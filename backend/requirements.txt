@@ -1,0 +1,14 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.7.0
+python-dotenv>=1.0.1
+torch>=2.2.0
+transformers>=4.48.0
+numpy
+google-genai>=0.3.0
+pytest>=8.0.0
+httpx>=0.27.0
+openai>=1.0.0
+json-repair>=0.12.0
+shap>=0.45.0
+

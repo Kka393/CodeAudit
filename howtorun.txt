@@ -1,0 +1,74 @@
+firsttime:
+Unzip and place model files
+Unzip AICD_MultiView.zip. 
+Copy your two files into the models/ folder at the project root, named exactly model_complete.pth and best_4class_classifier.pt (or set MODERNBERT_MODEL_PATH / CLASSIFIER_CHECKPOINT_PATH in .env if you keep different names/locations).
+2
+Create a virtual environment and install backend deps
+cd backend, then:
+ python -m venv .venv, 
+ activate it (source .venv/bin/activate on Mac/Linux, .venv\Scripts\activate on Windows),
+then pip install -r requirements.txt. This installs torch, transformers, fastapi, google-genai, pytest, etc.
+3
+Check .env
+A .env already exists at the project root with USE_MOCK_LLM=true, so you can run everything with zero Gemini API cost first. If you later want real Gemini calls, set USE_MOCK_LLM=false and paste your five keys into GEMINI_API_KEY_1..5.
+4
+Inspect your checkpoints before trusting anything
+Still inside backend/, run: python inspect_checkpoints.py. Read the printed 
+output — it tells you the real keys/architecture/label names in your two files. If it flags the label mapping as generic placeholders, note the true order for step 6.
+
+make changes in .env file
+MODERNBERT_MODEL_PATH=../models/model_complete.pth
+CLASSIFIER_CHECKPOINT_PATH=../models/best_4class_classifier.pt 
+# .. ==means go one folder up ,meaans from backend go above
+
+CLASS_LABEL_ORDER=Human,Machine,Hybrid,Adversarial
+
+
+5
+Run the backend
+From backend/, run: uvicorn app.main:app --reload --port 8000. 
+First startup will be slow (loading ModernBERT + classifier).
+Check http://localhost:8000/health returns {"status": "ok"}, and http://localhost:8000/docs for the interactive API.
+6
+Install and run the frontend
+In a second terminal: cd frontend, npm install, then npm run dev. Open the printed URL (usually http://localhost:5173) — it proxies /predict to your backend on port 8000 automatically.
+7
+Test end-to-end
+Paste some code into the UI and click Analyze, or test the API directly with curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d '{"code": "def f(x):\n return x", "language": "python"}'
+8
+(Optional) verify the label mapping
+If Step 4 showed generic class names, set CLASS_LABEL_ORDER=Human,AI,Hybrid,Adversarial (in the TRUE order from your T3 training notebook) in .env and restart the backend so predictions are labeled correctly rather than assumed.
+
+==========================================
+
+secondtime:
+
+
+TO RUN BACKEND:
+.venv\Scripts\activate  in AICD_MultiView only not backend
+
+open backend
+uvicorn app.main:app --reload --port 8000
+.
+.
+check http://localhost:8000/health?utm_source=chatgpt.com for {"status" :"ok"}
+
+keep checking cmd for errors
+
+.
+.
+.
+open another terminal fronted
+npm install (only first time)
+npm run dev
+
+
+
+
+====================
+
+if api keys expired or error:
+Whether a key is expired/invalid → your 
+app/backend will normally show an error such as
+ 401, 403, 429, or a model/quota error.
+
