@@ -1,0 +1,23 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# CPU-only torch (much smaller, no CUDA needed on Cloud Run)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir huggingface_hub
+
+COPY app ./app
+COPY inspect_checkpoints.py .
+COPY download_models.py .
+
+# Cloud Run injects PORT env var (default 8080)
+ENV USE_MOCK_LLM=true \
+    MODERNBERT_MODEL_PATH=/models/model_complete.pth \
+    CLASSIFIER_CHECKPOINT_PATH=/models/best_4class_classifier.pt \
+    FAMILY_CLASSIFIER_PATH=/models/stage6_classifier_head.pth
+
+EXPOSE 8080
+CMD ["sh", "-c", "python download_models.py && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]

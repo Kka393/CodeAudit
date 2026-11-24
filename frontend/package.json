@@ -15,5 +15,9 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.0"
-  }
+  },
+  "description": "",
+  "main": "vite.config.js",
+  "author": "",
+  "license": "ISC"
 }

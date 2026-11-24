@@ -1,27 +1,15 @@
-"""Download model weights from Hugging Face Hub at container startup."""
 import os
 from huggingface_hub import hf_hub_download
 
-MODEL_REPO = os.environ.get("MODEL_REPO", "YOUR_USERNAME/aicd-models")
-MODEL_DIR = "/models"
-HF_TOKEN = os.environ.get("HF_TOKEN", "")
-
-FILES = [
-    "model_complete.pth",
-    "best_4class_classifier.pt",
-    "stage6_classifier_head.pth",
-]
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root
+MODEL_DIR = os.path.join(ROOT, "models")
+MODEL_REPO = os.environ.get("MODEL_REPO", "kka2006/aicd-models")
 
 os.makedirs(MODEL_DIR, exist_ok=True)
-
-for name in FILES:
+for name in ["model_complete.pth", "best_4class_classifier.pt", "stage6_classifier_head.pth"]:
     try:
-        path = hf_hub_download(
-            repo_id=MODEL_REPO,
-            filename=name,
-            local_dir=MODEL_DIR,
-            token=HF_TOKEN or None,
-        )
-        print(f"[models] {name} -> {path}")
-    except Exception as exc:
-        print(f"[models] WARNING: could not download {name}: {exc}")
+        hf_hub_download(repo_id=MODEL_REPO, filename=name, local_dir=MODEL_DIR,
+                        token=os.environ.get("HF_TOKEN") or None)
+        print(f"[models] {name} ready")
+    except Exception as e:
+        print(f"[models] WARNING {name}: {e}")
